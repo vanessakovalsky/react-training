@@ -7,12 +7,8 @@ Ce cinquème exercice a pour objectifs :
 ## Rendre notre application isomorphique
 * Commençons par restructure nos fichiers :
 ```
-├── build
-|  └── main.bundle.js
 ├── client
 |  └── main.js
-├── iso-middleware
-|  └── renderRoute.js
 ├── package.json
 ├── .babelrc
 ├── .env
@@ -40,6 +36,9 @@ npm install react-router-dom
 ```
 * Ajouter un composant de navigation (TopNav)
 ```
+import React from 'react'
+import { Link } from 'react-router-dom'
+
 export default () => (
   <nav>
     <div className="nav-wrapper">
@@ -54,9 +53,8 @@ export default () => (
 ```
 * Ajouter ensuite un fichier routes.js
 ```
-import Home from './components/App';
+import App from './components/App';
 import HallOfFame from './components/HallOfFame';
-import NotFound from './components/NotFound';
 import Root from './components/Root';
 
 const routes = [
@@ -72,11 +70,6 @@ const routes = [
         path: '/hall-of-fame',
         component: HallOfFame
       },
-      {
-        path: '*',
-        restricted: false,
-        component: NotFound
-      }
     ]
   }
 ];
@@ -106,14 +99,16 @@ npm install http, path, express, morgan
 ```
 * Dans le dossier server, le fichier server.js initialise express, le framework de NodeJS et appelle le rendu des composants partagés :
 ```
-  
-// Set up ======================================================================
-// get all the tools we need
+ // get all the tools we need
 import express from 'express';
-import http from 'http';
 import logger from 'morgan';
-import path from 'path';
-import renderRouterMiddleware from '../iso-middleware/renderRoute';
+import App from '../shared/App';
+import React from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import cardsReducers from '../shared/reducers/CardsReducers';
+import { StaticRouter } from 'react-router-dom';
+import ReactDOMServer from 'react-dom/server'
 
 require('dotenv').config();
 
@@ -121,21 +116,30 @@ require('dotenv').config();
 const app = express();
 app.set('port', process.env.PORT || 8080);
 app.use(logger('short'));
+app.set('view engine', 'ejs');
+app.use('/static', express.static('build'));
 
-// Request Handlers
-const buildPath = path.join(__dirname, '../', 'build');
+// Request handler
+app.get('*', (req, res) => {
+  const context = {}
+  const store = createStore(cardsReducers)
+  const preloadedState = store.getState()
+  res.render('layout',{
+    content: ReactDOMServer.renderToString(
+      <Provider store={store}>
+        <StaticRouter location={req.url} context={context}>
+          <App />
+        </StaticRouter>
+     </Provider>
+    ),
+    state: JSON.stringify(preloadedState),
+  })
+})
 
-app.use('/', express.static(buildPath));
+// Lauch
+app.listen(3000,() => { console.log('App démarré sur le port 3000')})
 
-app.get('*', renderRouterMiddleware);
-
-// launch ======================================================================
-// Starts the Express server on port 3001 and logs that it has started
-http.createServer(app).listen(app.get('port'), () => {
-  console.log(`Express server started at: http://localhost:${app.get('port')}/`); // eslint-disable-line no-console
-});
-
-module.exports = app;
+module.exports = app; 
 ```
 * Le fichier server permet d'intialiser la page côté server
 * Le fichier run.js lance babel pour transpiler le code
@@ -147,12 +151,32 @@ module.exports = app;
 process.env.NODE_ENV = 'development';
 require('babel-register')({
   ignore: /\/(build|node_modules)\//,
-  presets: ['env', 'react-app']
+  presets: ['env', 'react']
 });
+require.extensions['.css'] = () => {
+  return;
+};
 
 require('./server.js');
 ```
-
+* Ajout de la vue côté Express avec EJS, dans le fichier views/layout.ejs :
+```
+<!doctype html>
+    <html>
+      <head>
+        <title>Memory isomorphic</title>
+      </head>
+      <body>
+        <div id="root"><%- content %></div>
+        <script>
+          // WARNING: See the following for security issues around embedding JSON in HTML:
+          // https://redux.js.org/recipes/server-rendering/#security-considerations
+          window.__PRELOADED_STATE__ = <%- state %>
+        </script>
+        <script src="/static/main.bundle.js"></script>
+      </body>
+    </html>
+```
 ## Mise en place du client et de la gestion des routes partagées
 * Le dossier client contient le fichier main.js qui initialise l'application côté client :
 ```
@@ -160,112 +184,143 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from '../shared/App';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import cardsReducers from '../shared/reducers/CardsReducers';
 
-const renderRouter = Component => {
-  ReactDOM.hydrate(
+const initialState = window.__PRELOADED_STATE__ || {};
+const store = createStore(cardsReducers, initialState)
+
+
+ReactDOM.render(
+  <Provider store={store}>
     <BrowserRouter>
-      <Component />
-    </BrowserRouter>, document.getElementById('root')
-  );
-};
-
-renderRouter(App);
-```
-* Il reste le fichier qui fait le point entre les routes du côté serveur et client iso-middleware/renderRoute.js : 
-```
-import React from 'react';
-// import chalk from 'chalk';
-import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom';
-import { matchRoutes } from 'react-router-config';
-import routes from '../shared/routes';
-import HTML from '../shared/components/HTML';
-import App from '../shared/App';
-
-export default function renderRoute(req, res) {
-  const branch = matchRoutes(routes, req.url);
-  const promises = [];
-
-  branch.forEach(({ route, match }) => {
-    if (route.loadData) {
-      promises.push(route.loadData(match));
-    }
-  });
-
-  Promise.all(promises).then(data => {
-    // data will be an array[] of datas returned by each promises.
-    // // console.log(data)
-
-    const context = data.reduce((context, data) => Object.assign(context, data), {});
-
-    const router = <StaticRouter location={req.url} context={context}><App /></StaticRouter>;
-
-    const app = renderToString(router);
-
-    const html = renderToString(<HTML html={app} />);
-
-    // console.log(chalk.green(`<!DOCTYPE html>${html}`));
-
-    return res.send(`<!DOCTYPE html>${html}`);
-  });
-}
+      <App />
+    </BrowserRouter>
+  </Provider>
+  , document.getElementById('root')
+);
 ```
 
 ## Gestion du build et du lancement :
 
-* Dans le fichier package.json, il est nécessaire de changer les commandes pour lancer node et plus seulement react, remplacer la partie script par 
+* Dans le fichier package.json, remplacer le contenu existant pour avoir l'ensemble du contenu nécessaire
 ```
+    {
+  "name": "test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
     "build:prod": "./node_modules/.bin/webpack --mode production",
     "build:dev": "./node_modules/.bin/webpack --mode development",
     "prestart": "npm run build:dev",
-    "start": "node server/run.js",
-    "lint": "./node_modules/.bin/eslint server client shared iso-middleware --ext .js,.jsx --fix"
+    "start": "node --experimental-modules server/run.js",
+    "lint": "./node_modules/.bin/eslint server client shared --ext .js,.jsx --fix"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "chalk": "^2.4.1",
+    "css-loader": "^3.5.3",
+    "dotenv": "^5.0.0",
+    "ejs": "^3.1.3",
+    "express": "^4.16.4",
+    "fs": "0.0.1-security",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash.shuffle": "^4.2.0",
+    "morgan": "^1.9.1",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-redux": "^7.2.0",
+    "react-router-config": "^1.0.0-beta.4",
+    "react-router-dom": "^4.3.1",
+    "redux": "^4.0.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-es2015-parameters": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-react-app": "^3.1.2",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-google": "^0.9.1",
+    "eslint-plugin-babel": "^4.1.2",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-react-native": "^3.5.0",
+    "style-loader": "^0.20.3",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
+  }
+}
 ```
 * Comme nous n'utilisons plus react-script pour le lancement il faut ajouter le fichier webpack.config.js a la racine avec ce contenu :
 ```
-process.env.NODE_ENV = 'development';
-const path = require('path');
-
-module.exports = {
+const path = require('path');module.exports = {
   entry: {
-    main: './client/main.js'
+      main: './client/main.js'
   },
   output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: '[name].bundle.js',
+      path: path.resolve(__dirname, 'build'),
+      filename: '[name].bundle.js',
   },
   devtool: 'inline-source-map',
   module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-      }
-    ],
+      rules: [
+          { 
+            test: /\.js$/, 
+            exclude: /node_modules/, 
+            loader: "babel-loader"
+          },
+          {
+            test: /\.css$/i,
+            use: ['style-loader', 'css-loader'],
+          },
+      ]
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css', '.es6'],
   }
-};
+}
 ```
 * Ainsi que le fichier de config pour babel .babelrc
 ```
 {
-  "presets": [
-    "env",
-    "stage-2",
-    "react"
-  ],
-  "plugins": [
-    "transform-runtime",
-    "transform-es2015-destructuring",
-    "transform-es2015-parameters",
-    "transform-object-rest-spread"
-  ]
-}
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  }
 ```
-- Lancer l'application
+* Installer les dépendances
+```
+npm install 
+```
+* Lancer l'application
 ```
 npm start 
 ```

@@ -21,7 +21,8 @@ npm start
 ## Une première application
 * Avant de démarrer quelques différences avec ReactJS :
 * * Pas de render, on utilise les composants natif de react comme le composant View
-* * 
+* * Pas de VirtualDom, utilisation des API natives pour manipuler les données
+* * Pas de CSS, on utilise les API dédiées de react native
 * Créer un premier composant :
 ```
 /* @flow */
@@ -52,6 +53,8 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
+
+export default App
 
 AppRegistry.registerComponent("DemoReactApp", () => App);
 ```

@@ -45,7 +45,6 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-
 const AppView = connect(
   mapStateToProps,
   mapDispatchToProps
