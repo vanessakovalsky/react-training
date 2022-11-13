@@ -66,6 +66,6 @@
     "eslint-plugin-react-native": "^3.5.0",
     "style-loader": "^0.20.3",
     "webpack": "^4.26.1",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.3.12"
   }
 }
