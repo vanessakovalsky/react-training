@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.App {
+  display: grid;
+  grid-template-columns: 60% 1fr;
+}
+
+#root {
+  height: 100vh;
+}
+
+.Products {
+  border: solid;
+  margin: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-column-gap: 24px;
+  grid-row-gap: 16px;
+}
+
+.Product {
+  color: black;
+  border: solid 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.Product__action {
+    border: none;
+    padding: 4px 8px;
+    width: 40px;
+    font-size: 1.25em;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: cornflowerblue;
+  }
+
+  .Cart {
+    border: solid;
+    margin: 8px;
+    padding: 8px;
+    border-radius: 8px;
+  
+    display: grid;
+    grid-template-rows: 80px 75% 1fr;
+  
+  }
+  
+  .Cart__products {
+      max-height: 545px;
+      overflow: auto;
+    }
+  
+    .Cart__product {
+      border-bottom: 1px solid #c6c6c6;
+      margin: 16px 0;
+      padding: 8px;
+    }
+    .Cart__product-details {
+        display: flex;
+        justify-content: space-between;
+      }
+  
+    .Cart__product--name {
+        margin-right: 8px;
+      }
+  
+      .Cart__header {
+      text-align: center;
+    }
+  
+    .Cart__total {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+  
+    .Cart__purchase {
+      border: none;
+      padding: 4px 8px;
+      width: 180px;
+      height: 40px;
+      font-size: 1.25em;
+      cursor: pointer;
+      border-radius: 4px;
+      background-color: cornflowerblue;
+    }
