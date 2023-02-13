@@ -11,6 +11,10 @@
 
 Pour chaque exercice, ouvrir le dossier correspondant, puis afficher les consignes du fichier \*.html dans un navigateur et le reste dans l'éditeur de code. 
 S'il n'y a pas de consignes au format HTML lancer l'application comme indiqué dans le readme les consignes se trouve directement dans l'app
+* Test : utiliser le dossier macdoumanager et lancer l'application
+* * Définir quels sont les tests pertinents à écrire pour tester l'application
+* * Ecrire les tests les plus pertinents avec Jest
+* * Executer les tests et vérifier le résultat
 * Contexte : 10 - Context 
 * * Correction - Niveau 1 : https://www.youtube.com/watch?v=Be98mEhOU6E&list=PLxPhnioBp0U15Q3HOkrvgpU_e2aL3PAh3&index=41
 * * Correction - Niveau 2 https://www.youtube.com/watch?v=H5kl8-EcHqA&list=PLxPhnioBp0U15Q3HOkrvgpU_e2aL3PAh3&index=43
