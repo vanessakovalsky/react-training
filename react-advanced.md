@@ -28,3 +28,12 @@ S'il n'y a pas de consignes au format HTML lancer l'application comme indiqué d
 ## Projet - Créer un jeu
 
 https://www.youtube.com/watch?v=3bgaT-dJxWI&list=PLxPhnioBp0U15Q3HOkrvgpU_e2aL3PAh3&index=51
+
+
+## Documentation
+
+### Tests
+
+* https://medium.com/@jeff_long/organizing-tests-in-jest-17fc431ff850
+* https://dev.to/dvddpl/jest-testing-like-a-pro-tips-and-tricks-4o6f
+* (test d'un panier ecommerce, un peu vieillot mais permet d'avoir la logique sur ce qu'il faut tester) : https://www.geeksforgeeks.org/create-a-shopping-cart-application-and-test-case-execution-based-on-reactjs/ 
