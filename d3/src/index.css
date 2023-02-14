@@ -52,7 +52,7 @@ code {
     background-color: cornflowerblue;
   }
 
-  .Cart {
+  .Cart, .form {
     border: solid;
     margin: 8px;
     padding: 8px;

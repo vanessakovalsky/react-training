@@ -6,9 +6,6 @@ export default function Product({product, index}) {
 
   const dispatch = useDispatch();
 
-  const addProduct = (productId) => {
-    dispatch(addToCart(productId))
-  }
 
   return (
     <div className="Product">

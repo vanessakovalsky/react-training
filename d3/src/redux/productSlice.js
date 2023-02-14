@@ -62,20 +62,25 @@ export const productSlice = createSlice({
           quantity: 0,
         },
       ],
-  reducers: {}
+  reducers: {
+    addProduct: (state, action) => {
+      state.push({ ...action.payload});
+    }
+  }
 })
 
 export const selectProducts = (state) => {
   const products =  state.product;
-  console.log(products);
   return  { products}
 }
 
 export function filterProductByCategorie(items, category) {
-  console.log(items);
   const filteredItems = items.filter((item) =>
     item.category === category);
   return filteredItems;
 }
+
+export const { addProduct } = productSlice.actions;
+
 
 export default productSlice.reducer

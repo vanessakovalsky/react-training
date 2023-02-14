@@ -21,6 +21,9 @@ export default function Root() {
                 <li>
                     <Link to={`/cart`}>Voir mon panier</Link>
                 </li>
+                <li>
+                    <Link to={`/add-product`}>Ajouter un produit</Link>
+                </li>
                 </ul>
             </nav>
             </div>

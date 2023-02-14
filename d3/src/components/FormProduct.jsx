@@ -1,20 +1,37 @@
 import React from "react";
-import { Field, reduxForm } from 'redux-form';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useDispatch } from "react-redux";
+import { addProduct } from '../redux/productSlice'
 
-let ProductForm = props => {
-    const { handleSubmit, pristine, reset, submitting } = props
+export default function ProductForm () {
+    const dispatch = useDispatch();
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="nomProduit">Nom du produit</label>
-            <Field name="nomProduit" component="input" type="text" placeholder="demo texte" />
-            <button type="submit" disabled={pristine || submitting}>Enregistrer</button>
-        </form>
-    )
+    <div>
+        <Formik
+            initialValues={ {name: ''}}
+            validate = { values => {
+                const errors = {};
+                if (!values.name) {
+                    errors.name = 'Obligatoire';
+                }
+                return errors
+            }}
+            onSubmit={ values => 
+                dispatch(addProduct(values))        
+            }
+        >
+            {({ isSubmitting}) => (
+                <div className="form">
+                <Form>
+                    <label htmlFor="name">Nom du produit</label>
+                    <Field name="name" type="text" placeholder="demo texte" />
+                    <ErrorMessage name="name" component="div" />
+                    <button type="submit" disabled={isSubmitting} className="Cart__purchase">Enregistrer</button>
+                </Form>
+                </div>
+            )}
+        </Formik>
+    </div>
+        
+    );
 }
-
-ProductForm = reduxForm({
-    form: 'productadd'
-})(ProductForm)
-
-
-export default ProductForm
