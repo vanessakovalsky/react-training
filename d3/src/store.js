@@ -1,4 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import productReducer from './redux/productSlice'
 import cartReducer from './redux/cartSlice'
 
@@ -10,6 +12,7 @@ const rootReducer = combineReducers({
   })
 
 
+
 export const setupStore = preloadedState => {
     return configureStore({
         reducer: {rootReducer},
@@ -17,8 +20,18 @@ export const setupStore = preloadedState => {
     })
 }
 
-export default configureStore({
+const persistConfig = {
+  key: 'root',
+  storage,
+}
+
+const persistedReducer = persistReducer (persistConfig, rootReducer)
+
+export const store =  configureStore({
   reducer: {
-    rootReducer,
+    persistedReducer,
+    // rootReducer,
   }
 })
+
+export const persistor = persistStore(store)

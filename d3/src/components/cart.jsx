@@ -2,7 +2,7 @@ import React from 'react';
 import {useSelector} from "react-redux";
 
 export default function Cart() {
-  const cart = useSelector((state) => state.rootReducer.cart.product);
+  const cart = useSelector((state) => state.persistedReducer.cart.product);
   return (
     <div className="Cart">
       <h2 className="Cart__header">Panier</h2>

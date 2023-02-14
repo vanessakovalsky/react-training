@@ -6,8 +6,9 @@ import {
 } from "react-router-dom";
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import store from './store'
+import { store, persistor } from './store'
 import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react';
 
 import Root from "./routes/root";
 import Boissons from "./routes/boissons";
@@ -48,7 +49,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
         <RouterProvider router={router} />
+    </PersistGate>
   </Provider>
 );
 

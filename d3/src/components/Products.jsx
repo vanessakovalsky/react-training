@@ -5,7 +5,7 @@ import Product from "./Product";
 import { filterProductByCategorie } from '../redux/productSlice';
 
 export default function Products({category}) {
-  const selectProducts = useSelector((state) => state.rootReducer.product);
+  const selectProducts = useSelector((state) => state.persistedReducer.product);
   const products = filterProductByCategorie(selectProducts, category);
 
   return (
