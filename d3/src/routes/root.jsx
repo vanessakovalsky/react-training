@@ -1,10 +1,14 @@
 import { Outlet, Link } from "react-router-dom";
+import { connect } from "react-redux";
+import LanguageSwticher from "../components/LanguageSwticher";
 
-export default function Root() {
+function Root() {
+
     return (
       <>
         <div className="App">
             <header className="App-header">
+                <LanguageSwticher />
             <div id="sidebar">
             <h1>MacDouManager</h1>
             <nav>
@@ -35,3 +39,7 @@ export default function Root() {
       </>
     );
   }
+
+
+  const mapStateToProps = state => ({ locale: state.persistedReducer.i18n.locale });
+  export default connect(mapStateToProps)(Root);

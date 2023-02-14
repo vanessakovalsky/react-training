@@ -1,5 +1,6 @@
 import React from 'react';
 import {useDispatch} from "react-redux";
+import { Translate } from "react-redux-i18n";
 import { addToCart } from '../redux/cartSlice';
 
 export default function Product({product, index}) {
@@ -10,6 +11,8 @@ export default function Product({product, index}) {
   return (
     <div className="Product">
       <p>
+        <Translate value="product.name" />
+        {" "}
         {product.name}
       </p>
       <p>
